@@ -36,6 +36,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 300s
+    networks:
+      - ocr-network
 
   frontend:
     build:
@@ -54,6 +56,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - ocr-network
+
+networks:
+  ocr-network:
+    driver: bridge
 
 volumes:
   huggingface-cache:
