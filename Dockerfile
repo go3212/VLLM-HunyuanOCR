@@ -7,7 +7,6 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update && apt-get install -y \
     python3.11 \
     python3.11-venv \
-    python3-pip \
     git \
     curl \
     wget \
@@ -17,19 +16,17 @@ RUN apt-get update && apt-get install -y \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
-# Upgrade pip
-RUN python -m pip install --upgrade pip
-RUN uv python install --default
-
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 
 # Install vLLM nightly with HunyuanOCR support
-RUN uv pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
-
+RUN uv pip install --system -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
 # Install Tencent's fork of transformers with HunyuanVL support
 # The standard transformers library doesn't include hunyuan_vl architecture yet
-RUN pip install --force-reinstall --no-deps git+https://github.com/huggingface/transformers@82a06db03535c49aa987719ed0746a76093b1ec4 && \
-    pip install accelerate pillow tiktoken
+RUN uv pip install --system --force-reinstall --no-deps git+https://github.com/huggingface/transformers@82a06db03535c49aa987719ed0746a76093b1ec4 && \
+    uv pip install --system accelerate pillow tiktoken
 
 WORKDIR /app
 
@@ -40,4 +37,3 @@ EXPOSE 8000
 
 # Default command (can be overridden in docker-compose)
 CMD ["vllm", "serve", "tencent/HunyuanOCR", "--host", "0.0.0.0", "--port", "8000"]
-
