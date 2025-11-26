@@ -19,7 +19,6 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
       - HF_HOME=/root/.cache/huggingface
-      - VLLM_USE_V1=0
       # Uncomment and set your token if needed for gated models
       # - HF_TOKEN=your_huggingface_token_here
     command: >
