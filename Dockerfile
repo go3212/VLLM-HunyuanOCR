@@ -25,7 +25,7 @@ RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
 # Install Tencent's fork of transformers with HunyuanVL support
 # The standard transformers library doesn't include hunyuan_vl architecture yet
-RUN pip install --force-reinstall --no-deps git+https://github.com/Tencent-Hunyuan/transformers.git && \
+RUN pip install --force-reinstall --no-deps git+https://github.com/huggingface/transformers@82a06db03535c49aa987719ed0746a76093b1ec4 && \
     pip install accelerate pillow tiktoken
 
 WORKDIR /app
