@@ -24,7 +24,8 @@ RUN python -m pip install --upgrade pip
 RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
 # Install additional dependencies
-RUN pip install transformers accelerate pillow
+# Install transformers from source for hunyuan_vl model support
+RUN pip install git+https://github.com/huggingface/transformers.git accelerate pillow
 
 WORKDIR /app
 
