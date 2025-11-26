@@ -19,9 +19,12 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
 
 # Upgrade pip
 RUN python -m pip install --upgrade pip
+RUN uv python install --default
+
 
 # Install vLLM nightly with HunyuanOCR support
-RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
+RUN uv pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
+
 
 # Install Tencent's fork of transformers with HunyuanVL support
 # The standard transformers library doesn't include hunyuan_vl architecture yet
