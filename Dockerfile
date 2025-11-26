@@ -23,9 +23,10 @@ RUN python -m pip install --upgrade pip
 # Install vLLM nightly with HunyuanOCR support
 RUN pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 
-# Install additional dependencies
-# HunyuanVL/HunyuanOCR requires transformers 4.56.0+
-RUN pip install "transformers[tiktoken]>=4.56.0" accelerate pillow
+# Install Tencent's fork of transformers with HunyuanVL support
+# The standard transformers library doesn't include hunyuan_vl architecture yet
+RUN pip uninstall -y transformers && \
+    pip install git+https://github.com/Tencent-Hunyuan/transformers.git accelerate pillow tiktoken
 
 WORKDIR /app
 
