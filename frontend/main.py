@@ -162,8 +162,9 @@ async def process_document(
 
     try:
         if filename.endswith(".pdf"):
-            # Convert PDF to images
-            images = convert_from_bytes(content, dpi=200)
+            # Convert PDF to images at maximum DPI for best detail detection
+            # (underlines, bold text, fine formatting)
+            images = convert_from_bytes(content, dpi=600)
             
             # Parse pages parameter
             if pages and pages.strip() and pages.strip().lower() != "all":
