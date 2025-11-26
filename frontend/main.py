@@ -52,9 +52,9 @@ def image_to_base64(image: Image.Image, format: str = "PNG") -> str:
 
 
 async def process_image_with_ocr(
-    image_base64: str, prompt: str, timeout: float = 300.0
+    image_base64: str, prompt: str, timeout: float = 300.0, max_retries: int = 3
 ) -> str:
-    """Send image to OCR server and get result."""
+    """Send image to OCR server and get result with retry logic."""
     payload = {
         "model": "tencent/HunyuanOCR",
         "messages": [
@@ -74,15 +74,28 @@ async def process_image_with_ocr(
         "temperature": 0,
     }
 
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        response = await client.post(
-            f"{OCR_SERVER_URL}/v1/chat/completions",
-            json=payload,
-            headers={"Content-Type": "application/json"},
-        )
-        response.raise_for_status()
-        result = response.json()
-        return result["choices"][0]["message"]["content"]
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(
+                    f"{OCR_SERVER_URL}/v1/chat/completions",
+                    json=payload,
+                    headers={"Content-Type": "application/json"},
+                )
+                response.raise_for_status()
+                result = response.json()
+                return result["choices"][0]["message"]["content"]
+        except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+            continue
+        except httpx.HTTPStatusError as e:
+            # Don't retry on HTTP errors (4xx, 5xx) - they're likely not transient
+            raise e
+    
+    raise last_error or httpx.ConnectError("OCR server connection failed after retries")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -96,6 +109,19 @@ async def root():
 async def health():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+@app.get("/api/backend-status")
+async def backend_status():
+    """Check if the OCR backend is ready."""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{OCR_SERVER_URL}/health")
+            if response.status_code == 200:
+                return {"status": "ready", "message": "OCR server is ready"}
+    except Exception:
+        pass
+    return {"status": "loading", "message": "OCR server is still loading the model. Please wait..."}
 
 
 @app.get("/api/prompts")
