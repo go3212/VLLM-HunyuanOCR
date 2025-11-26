@@ -25,6 +25,7 @@ services:
       vllm serve tencent/HunyuanOCR
         --no-enable-prefix-caching
         --mm-processor-cache-gb 0
+        --enforce-eager
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
