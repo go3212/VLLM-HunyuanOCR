@@ -51,6 +51,27 @@ def image_to_base64(image: Image.Image, format: str = "PNG") -> str:
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
+def clean_repeated_substrings(text: str) -> str:
+    """Clean repeated substrings in text (handles model repetition loops)."""
+    n = len(text)
+    if n < 8000:
+        return text
+    
+    for length in range(2, n // 10 + 1):
+        candidate = text[-length:]
+        count = 0
+        i = n - length
+        
+        while i >= 0 and text[i:i + length] == candidate:
+            count += 1
+            i -= length
+        
+        if count >= 10:
+            return text[:n - length * (count - 1)]
+    
+    return text
+
+
 async def process_image_with_ocr(
     image_base64: str, prompt: str, timeout: float = 300.0, max_retries: int = 3
 ) -> str:
@@ -85,7 +106,8 @@ async def process_image_with_ocr(
                 )
                 response.raise_for_status()
                 result = response.json()
-                return result["choices"][0]["message"]["content"]
+                content = result["choices"][0]["message"]["content"]
+                return clean_repeated_substrings(content)
         except (httpx.ConnectError, httpx.ConnectTimeout) as e:
             last_error = e
             if attempt < max_retries - 1:
