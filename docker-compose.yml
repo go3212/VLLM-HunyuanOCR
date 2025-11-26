@@ -23,12 +23,8 @@ services:
       # - HF_TOKEN=your_huggingface_token_here
     command: >
       vllm serve tencent/HunyuanOCR
-      --host 0.0.0.0
-      --port 8000
-      --no-enable-prefix-caching
-      --mm-processor-cache-gb 0
-      --gpu-memory-utilization 0.8
-      --trust-remote-code
+        --no-enable-prefix-caching
+        --mm-processor-cache-gb 0
     restart: unless-stopped
 
   frontend:
