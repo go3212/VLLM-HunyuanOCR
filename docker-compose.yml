@@ -36,14 +36,12 @@ services:
     restart: unless-stopped
 
   # Idle shutdown watchdog - stops server after inactivity to free VRAM
-  # Usage: docker compose --profile autoshutdown up -d
+  # Starts by default. To run without watchdog: docker compose up hunyuan-ocr -d
   watchdog:
     build:
       context: ./watchdog
       dockerfile: Dockerfile
     container_name: hunyuan-ocr-watchdog
-    profiles:
-      - autoshutdown
     environment:
       - VLLM_URL=http://hunyuan-ocr:8000
       # Idle timeout in seconds (default: 300 = 5 minutes)
@@ -58,8 +56,10 @@ services:
     depends_on:
       hunyuan-ocr:
         condition: service_healthy
-    restart: "no"
+    restart: unless-stopped
 
+  # Web frontend for testing OCR
+  # Usage: docker compose --profile frontend up -d
   frontend:
     build:
       context: ./frontend
