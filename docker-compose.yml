@@ -11,8 +11,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    ports:
-      - "8000:8000"
+    # No exposed ports - traffic goes through proxy
     volumes:
       - huggingface-cache:/root/.cache/huggingface
     environment:
@@ -33,25 +32,60 @@ services:
       timeout: 10s
       retries: 120
       start_period: 300s
-    restart: unless-stopped
+    # Don't auto-restart - proxy manages lifecycle
+    restart: "no"
 
-  # Idle shutdown watchdog - stops server after inactivity to free VRAM
-  # Starts by default. To run without watchdog: docker compose up hunyuan-ocr -d
+  # Smart proxy - handles requests and manages OCR server lifecycle
+  # - Auto-starts OCR server when request comes in
+  # - Waits for server to be healthy before forwarding
+  # - Shuts down OCR server after idle timeout to free VRAM
+  proxy:
+    build:
+      context: ./watchdog
+      dockerfile: Dockerfile
+    container_name: hunyuan-ocr-proxy
+    ports:
+      # This is now the main entry point
+      - "8000:8000"
+    environment:
+      # Backend server (internal Docker network)
+      - VLLM_URL=http://hunyuan-ocr:8000
+      # Container to manage
+      - CONTAINER_NAME=hunyuan-ocr
+      # Idle timeout in seconds (default: 300 = 5 minutes)
+      - IDLE_TIMEOUT=${IDLE_TIMEOUT:-300}
+      # How often to check idle status (default: 30s)
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-30}
+      # Max time to wait for server startup (default: 600 = 10 min)
+      - STARTUP_TIMEOUT=${STARTUP_TIMEOUT:-600}
+    volumes:
+      # Mount docker socket to control the OCR container
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - hunyuan-ocr
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/proxy/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Legacy watchdog service (deprecated - use proxy instead)
+  # Keeping for backwards compatibility, but proxy is preferred
   watchdog:
     build:
       context: ./watchdog
       dockerfile: Dockerfile
     container_name: hunyuan-ocr-watchdog
+    profiles:
+      - legacy
     environment:
       - VLLM_URL=http://hunyuan-ocr:8000
-      # Idle timeout in seconds (default: 300 = 5 minutes)
       - IDLE_TIMEOUT=${IDLE_TIMEOUT:-300}
-      # Check interval in seconds (default: 30)
       - CHECK_INTERVAL=${CHECK_INTERVAL:-30}
-      # Command to stop the server (uses docker from host)
       - SHUTDOWN_COMMAND=docker stop hunyuan-ocr
+    command: ["python", "-u", "idle_shutdown.py"]
     volumes:
-      # Mount docker socket to allow stopping the main container
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       hunyuan-ocr:
@@ -65,13 +99,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: hunyuan-ocr-frontend
+    profiles:
+      - frontend
     ports:
       - "8520:8520"
     environment:
-      - OCR_SERVER_URL=http://hunyuan-ocr:8000
+      # Point to proxy instead of direct OCR server
+      - OCR_SERVER_URL=http://hunyuan-ocr-proxy:8000
     depends_on:
-      hunyuan-ocr:
-        condition: service_healthy
+      - proxy
     restart: unless-stopped
 
 volumes:

@@ -11,9 +11,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir httpx
+# Install Python dependencies for proxy server
+RUN pip install --no-cache-dir \
+    httpx \
+    fastapi \
+    uvicorn[standard]
 
+COPY proxy.py .
 COPY idle_shutdown.py .
 
-CMD ["python", "-u", "idle_shutdown.py"]
+# Expose proxy port
+EXPOSE 8000
 
+# Run the proxy server
+CMD ["python", "-u", "proxy.py"]
