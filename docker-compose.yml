@@ -65,8 +65,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: hunyuan-ocr-frontend
-    profiles:
-      - frontend
     ports:
       - "8520:8520"
     environment:
