@@ -35,11 +35,38 @@ services:
       start_period: 300s
     restart: unless-stopped
 
+  # Idle shutdown watchdog - stops server after inactivity to free VRAM
+  # Usage: docker compose --profile autoshutdown up -d
+  watchdog:
+    build:
+      context: ./watchdog
+      dockerfile: Dockerfile
+    container_name: hunyuan-ocr-watchdog
+    profiles:
+      - autoshutdown
+    environment:
+      - VLLM_URL=http://hunyuan-ocr:8000
+      # Idle timeout in seconds (default: 300 = 5 minutes)
+      - IDLE_TIMEOUT=${IDLE_TIMEOUT:-300}
+      # Check interval in seconds (default: 30)
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-30}
+      # Command to stop the server (uses docker from host)
+      - SHUTDOWN_COMMAND=docker stop hunyuan-ocr
+    volumes:
+      # Mount docker socket to allow stopping the main container
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      hunyuan-ocr:
+        condition: service_healthy
+    restart: "no"
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: hunyuan-ocr-frontend
+    profiles:
+      - frontend
     ports:
       - "8520:8520"
     environment:
