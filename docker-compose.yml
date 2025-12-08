@@ -26,6 +26,7 @@ services:
         --no-enable-prefix-caching
         --mm-processor-cache-gb 0
         --enforce-eager
+        --gpu-memory-utilization 0.4
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
