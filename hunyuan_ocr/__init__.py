@@ -4,7 +4,8 @@ This package provides a client for communicating with the VLLM-HunyuanOCR server
 and tools for managing GPU memory.
 
 Example usage:
-    from hunyuan_ocr import HunyuanOCRClient, HunyuanOCRManager
+    from hunyuan_ocr_client import HunyuanOCRClient
+    from hunyuan_ocr import HunyuanOCRManager
     
     # Simple OCR (server must be running)
     with HunyuanOCRClientSync() as client:
@@ -16,7 +17,7 @@ Example usage:
     # Server stopped, GPU memory freed
 """
 
-from hunyuan_ocr.client import (
+from hunyuan_ocr_client import (
     HunyuanOCRClient,
     HunyuanOCRClientSync,
     HunyuanOCRConfig,

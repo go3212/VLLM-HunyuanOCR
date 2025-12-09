@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Union
 
-from hunyuan_ocr.client import (
+from hunyuan_ocr_client import (
     HunyuanOCRClient,
     HunyuanOCRClientSync,
     HunyuanOCRConfig,
