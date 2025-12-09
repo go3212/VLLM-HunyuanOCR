@@ -4,8 +4,7 @@ version = "0.1.0"
 description = "HunyuanOCR client library with VRAM management"
 requires-python = ">=3.10"
 dependencies = [
-    "httpx>=0.25.0",
-    "pillow>=9.0.0",
+    "hunyuan-ocr-client",
 ]
 
 [project.optional-dependencies]
@@ -20,6 +19,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["hunyuan_ocr"]
+
+[tool.uv.sources]
+hunyuan-ocr-client = { path = "clients/python", editable = true }
 
 [tool.ruff]
 target-version = "py310"
