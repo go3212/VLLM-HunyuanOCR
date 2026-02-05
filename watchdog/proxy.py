@@ -235,6 +235,12 @@ async def lifespan(app: FastAPI):
     log.info(f"  Startup timeout: {STARTUP_TIMEOUT}s ({STARTUP_TIMEOUT // 60}m)")
     log.info("=" * 60)
 
+    # Stop the backend container immediately on proxy startup.
+    # Docker Compose starts it due to depends_on, but we want lazy-start behavior:
+    # the proxy will start it on first request via ensure_server_ready().
+    log.info(f"Stopping backend container to free VRAM (will start on first request)...")
+    subprocess.run(["docker", "stop", CONTAINER_NAME], capture_output=True, timeout=30)
+
     # Create shared HTTP client with long timeouts for model inference
     http_client = httpx.AsyncClient(
         timeout=httpx.Timeout(connect=30, read=600, write=60, pool=30),
