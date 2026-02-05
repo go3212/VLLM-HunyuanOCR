@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "q7lzJqxGWdQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Ferna\\Dev\\VencoDocling\\extern\\VLLM-HunyuanOCR\\clients\\dotnet\\HunyuanOCR.Client\\HunyuanOCR.Client.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Ferna\\.nuget\\packages\\system.net.http.json\\8.0.0\\system.net.http.json.8.0.0.nupkg.sha512",
+    "C:\\Users\\Ferna\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
+    "C:\\Users\\Ferna\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
+    "C:\\Users\\Ferna\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.23\\microsoft.netcore.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Ferna\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.23\\microsoft.windowsdesktop.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Ferna\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.23\\microsoft.aspnetcore.app.ref.8.0.23.nupkg.sha512"
+  ],
+  "logs": []
+}
