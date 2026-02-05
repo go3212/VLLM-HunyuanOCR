@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute((".NET client for HunyuanOCR API - supports async and sync operations with batch pr" +
     "ocessing"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+9aa23b84c0eba256ada63f906384a05ef669aaa3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+61106104b9130ed9b9e6a7aecd4796e07b6464dd")]
 [assembly: System.Reflection.AssemblyProductAttribute("HunyuanOCR.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HunyuanOCR.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]
